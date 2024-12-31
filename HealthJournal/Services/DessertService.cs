@@ -25,7 +25,8 @@ namespace HealthJournal.Services
 
         public async Task<bool> CreateDessertAsync(Dessert newDessert)
         {
-            try {
+            try
+            {
                 await _desserts.InsertOneAsync(newDessert);
                 return true;
             }
