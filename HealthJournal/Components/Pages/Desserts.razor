@@ -12,10 +12,18 @@
 }
 else
 {
-    <input @bind="newDessertName" style="height: 40px; vertical-align: top;" />
-    <input @bind="newDessertQty" style="height: 40px; vertical-align: top;" />
-    <button @onclick="AddDessert" class="btn btn-primary" style="height: 40px; vertical-align: top;">Add Dessert
-        Item</button>
+    <div class="@(invalidQuantity ? "invalid" : "")">
+        <input @bind="newDessertName" class="dessertInput" />
+        <input @bind="newDessertQtyString" class="dessertInput" />
+        <input @bind="selectedDate" type="date" id="datePicker" name="datePicker" min="2024-01-01" max="2025-12-31" required
+            class="dessertInput" />
+        @if (invalidQuantity)
+        {
+            <div class="validation-message">Please enter a valid number greater than 0</div>
+        }
+        <button @onclick="AddDessert" class="btn btn-primary dessertInput">Add Dessert
+            Item</button>
+    </div>
     <br>
     <br>
     <table class="table">
@@ -40,7 +48,11 @@ else
 @code {
     private List<Dessert> desserts = new();
     string newDessertName = "";
-    int newDessertQty = 0;
+    string newDessertQtyString = "";
+
+    bool invalidQuantity = false;
+
+    DateTime selectedDate = DateTime.Now;
 
     protected override async Task OnInitializedAsync()
     {
@@ -49,17 +61,41 @@ else
 
     async Task AddDessert()
     {
-        if (!string.IsNullOrWhiteSpace(newDessertName) && !string.IsNullOrWhiteSpace(newDessertQty.ToString()))
+        invalidQuantity = false;
+
+        if (!int.TryParse(newDessertQtyString, out int quantity) || quantity <= 0)
         {
-            Dessert newDessert = new Dessert { name = newDessertName, quantity = newDessertQty };
-            //desserts.Add(newDessert);
+            invalidQuantity = true;
+            return;
+        }
+
+        if (!string.IsNullOrWhiteSpace(newDessertName) && !invalidQuantity)
+        {
+            Dessert newDessert = new Dessert { name = newDessertName, quantity = quantity };
             bool success = await DessertService.CreateDessertAsync(newDessert);
             if (success)
             {
                 desserts = await DessertService.GetDessertsAsync();
                 newDessertName = string.Empty;
-                newDessertQty = 0;
+                newDessertQtyString = string.Empty;
             }
         }
     }
 }
+
+<style>
+    .invalid input {
+        border-color: red;
+    }
+
+    .validation-message {
+        color: red;
+        font-size: 0.8em;
+    }
+
+    .dessertInput {
+        height: 40px;
+        vertical-align: top;
+        border: 1px solid #000000;
+    }
+</style>

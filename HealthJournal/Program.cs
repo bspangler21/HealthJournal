@@ -5,12 +5,14 @@ using System.Threading.Tasks;
 using HealthJournal.Components;
 using HealthJournal.Models;
 using HealthJournal.Services;
+using MudBlazor.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddHttpClient();
+builder.Services.AddMudServices();
 
 if (builder.Environment.IsDevelopment())
 {
