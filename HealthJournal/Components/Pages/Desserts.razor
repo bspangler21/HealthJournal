@@ -1,0 +1,61 @@
+﻿@page "/desserts"
+@using HealthJournal.Services
+@using HealthJournal.Models
+@inject DessertService DessertService
+@inject HttpClient Http
+@rendermode InteractiveServer
+
+<h3>Desserts</h3>
+
+@if (desserts == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <input @bind="newDessertName" style="height: 40px; vertical-align: top;" />
+    <input @bind="newDessertQty" style="height: 40px; vertical-align: top;" />
+    <button @onclick="AddDessert" class="btn btn-primary" style="height: 40px; vertical-align: top;">Add Dessert Item</button>
+    <br>
+    <br>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Quantity</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var dessert in desserts)
+            {
+                <tr>
+                    <td>@dessert.name</td>
+                    <td>@dessert.quantity</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private List<Dessert> desserts = new();
+    string newDessertName = "";
+    int newDessertQty = 0;
+
+    protected override async Task OnInitializedAsync()
+    {
+        desserts = await DessertService.GetDessertsAsync();
+    }
+
+    async void AddDessert()
+    {
+        if (!string.IsNullOrWhiteSpace(newDessertName) && !string.IsNullOrWhiteSpace(newDessertQty.ToString()))
+        {
+            Dessert newDessert = new Dessert { name = newDessertName, quantity = newDessertQty };
+            desserts.Add(newDessert);
+            var response = await Http.PostAsJsonAsync("api/desserts", newDessert);
+            newDessertName = string.Empty;
+            newDessertQty = 0;
+        }
+    }
+}
