@@ -23,9 +23,16 @@ namespace HealthJournal.Services
             return desserts;
         }
 
-        public async Task CreateDessertAsync(Dessert newDessert)
+        public async Task<bool> CreateDessertAsync(Dessert newDessert)
         {
-            await _desserts.InsertOneAsync(newDessert);
+            try {
+                await _desserts.InsertOneAsync(newDessert);
+                return true;
+            }
+            catch (Exception ex) {
+                Console.WriteLine("Error creating dessert: " + ex.Message);
+                return false;
+            }
         }
     }
 }

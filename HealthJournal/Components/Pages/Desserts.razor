@@ -2,7 +2,6 @@
 @using HealthJournal.Services
 @using HealthJournal.Models
 @inject DessertService DessertService
-@inject HttpClient Http
 @rendermode InteractiveServer
 
 <h3>Desserts</h3>
@@ -15,7 +14,8 @@ else
 {
     <input @bind="newDessertName" style="height: 40px; vertical-align: top;" />
     <input @bind="newDessertQty" style="height: 40px; vertical-align: top;" />
-    <button @onclick="AddDessert" class="btn btn-primary" style="height: 40px; vertical-align: top;">Add Dessert Item</button>
+    <button @onclick="AddDessert" class="btn btn-primary" style="height: 40px; vertical-align: top;">Add Dessert
+        Item</button>
     <br>
     <br>
     <table class="table">
@@ -47,15 +47,19 @@ else
         desserts = await DessertService.GetDessertsAsync();
     }
 
-    async void AddDessert()
+    async Task AddDessert()
     {
-        if (!string.IsNullOrWhiteSpace(newDessertName) && !string.IsNullOrWhiteSpace(newDessertQty.ToString()))
+        if (!string.IsNullOrWhiteSpace(newDessertName) && !string.IsNullOrWhiteSpace(newDessertQty.ToString()) && int32tr)
         {
             Dessert newDessert = new Dessert { name = newDessertName, quantity = newDessertQty };
-            desserts.Add(newDessert);
-            var response = await Http.PostAsJsonAsync("api/desserts", newDessert);
-            newDessertName = string.Empty;
-            newDessertQty = 0;
+            //desserts.Add(newDessert);
+            bool success = await DessertService.CreateDessertAsync(newDessert);
+            if (success)
+            {
+                desserts = await DessertService.GetDessertsAsync();
+                newDessertName = string.Empty;
+                newDessertQty = 0;
+            }
         }
     }
 }
